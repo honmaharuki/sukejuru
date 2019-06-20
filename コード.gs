@@ -27,12 +27,21 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
   var userDataRow = searchUserDataRow(userId);//何行目にuserIdが入っていたかを判断　代入。
   var todo = getTodoCell(userDataRow).getValue();//TodoCellの中身を代入。　userDataRow = 何行目の内容か。  
   var todoDate = getDateCell(userDataRow).getValue(); //Dateセルの中身を代入。
+  /*
+  --------------------------------------------------------------------------
+  */
+  /*  var txtyotei[] = message.split(/[のをでがにはへとや。、.,]/,10); //splitで文字列を区切って配列変数に格納。
+  var count = txtyotei.length; //配列変数txtyoteiの配列数を調べる。
+  var datayotei // 日程をしまっておくためのデータ。
+  for(var i = 0; i <= count-1; i++){   */
   switch (message) {
     case '使い方':
       replyText = 'あとで思い出したいことをラインしてくれれば、いつお知らせしてほしいか聞くよ\nまずは覚えて欲しいことを教えてね\nその後時間を聞くから「10分後」「11月11日11時11分」のように「○分後」か、「○月○日○時○分」形式で日時を教えてね！そうしないと正しく時間を登録できないよ！';
+     // i = count ; // forを止める。
       break;
     case 'キャンセル':
       replyText = cancel(userDataRow);
+    //  i = count ; // forを止める。
       break;  
     case '確認':
       if (todoDate) {
@@ -40,27 +49,34 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
       } else {
         replyText = '何も登録されていないよ！';
       }
+     // i = count ; // forを止める。
       break;
-    case '明日':
+      /* 
+      case '明日':
       if (todoDate) { //すでにリマインダーが登録がされている状態で新しい予定が入ってきた場合。 todoDateが空でない場合。
-        replyText = '一つ登録されているよ！\nもし新しい予定を登録したい時には”キャンセル”って送ってね。';
+      replyText = '一つ登録されているよ！\nもし新しい予定を登録したい時には”キャンセル”って送ってね。';
       } else if (todo) { //すでにタスクが登録されている状態で何かが入力されたということは日時が登録されていないということで日時登録。
-        replyText = asita(userDataRow);
+      replyText = asita(userDataRow);
       }
       else { //リマインダーもタスクも登録されていないのでsetTodoから予定を登録する。
-        replyText = setTodo(userDataRow, message);
+      replyText = setTodo(userDataRow, message);
       }
       break;
+      */
     default: //何か登録したいものが送られてきた場合の登録の場合分け。
       if (todoDate) { //すでにリマインダーが登録がされている状態で新しい予定が入ってきた場合。 todoDateが空でない場合。
         replyText = '一つ登録されているよ！\nもし新しい予定を登録したい時には”キャンセル”って送ってね。';
-      } else if (todo) { //すでにタスクが登録されている状態で何かが入力されたということは日時が登録されていないということで日時関係のsetDateにいく。
-        replyText = setDate(userDataRow, message);
+   //     i = count ; // forを止める。
+      } else if (todo && i == count - 2) { //すでにタスクが登録されている状態で何かが入力されたということは日時が登録されていないということで日時関係のsetDateにいく。
+        datayotei = setDate(userDataRow, message);
+        replyText = dateyotei + 'だね。覚えたよ！\nその時間になったら知らせるね。';
       }
       else { //リマインダーもタスクも登録されていないのでsetTodoから予定を登録する。
         replyText = setTodo(userDataRow, message);
+   //     i = count ; // forを止める。
       }
   }
+  //  }
   return sendLineMessageFromReplyToken(replyToken, replyText); //反応してラインに値を送る関数に引数を与える。
 }
 function searchUserDataRow(userId) {　// userIdが登録されている検索。　何行目に入っていたかを返却。　ない場合にはfalseを返却。
@@ -76,17 +92,87 @@ function setTodo(row, message) { //タスクを登録。
 }
 function setDate(row, message) { //日時を書き込む為の関数。
   // 全角英数を半角に変換
-  message = message.replace(/[Ａ-Ｚａ-ｚ０-９]/g, function (s) { //新しい文字列を作る為の関数を指定。
+  var date = Moment.moment().format('YYYY年MM月DD日H時m分');//現在日時取得。 YYYY年MM月DD日H時m分
+  var truedate = date; // 正しい日付。
+  
+  message = message.replace(/[Ａ-Ｚａ-ｚ０-9]/g, function (s) { //新しい文字列を作る為の関数を指定。
     return String.fromCharCode(s.charCodeAt(0) - 0xFEE0); // 全角英数を半角に変換。
   });
-  var date = Moment.moment(message, 'M月D日H時m分', true).format('YYYY年MM月DD日H時m分'); //英数字を抜き出し、YYYY年MM月DD日H時m分の形に直す。
-  if (date === 'Invalid date') { //もし無効な時間文字列が渡された場合には
-    var match = message.match(/\d+/g); //検索して一番初めにマッチした半角数字を返す。
-    if (match !== null) { //もし何か数字があった時には数字を抜き出し英数字を抜き出し、YYYY年MM月DD日H時m分の形に直す。 ただしこの時に抜き出した数字は全て何分後かの形式になる。
-      date = Moment.moment().add(+match[0], 'minutes').format('YYYY年MM月DD日H時m分');
+  message = message.replace(/[一]/g, 1); // 漢数字から数字へ
+  message = message.replace(/[二]/g, 2); 
+  message = message.replace(/[三]/g, 3); 
+  message = message.replace(/[四]/g, 4); 
+  message = message.replace(/[五]/g, 5); 
+  message = message.replace(/[六]/g, 6); 
+  message = message.replace(/[七]/g, 7); 
+  message = message.replace(/[八]/g, 8); 
+  message = message.replace(/[九]/g, 9); 
+  message = message.replace(/[\d十]/g, 0); // 漢数字から数字へ
+  message = message.replace(/[十]/g, 10); 
+  // 明日　明後日　明々後日　
+  if(message.match(/\d[年月日時分]後/)) { // 数字後の場合には現在の時刻から加算。
+    if(message.match(/\d+年/)){
+      var match = message.match(/\d+年/); 
+      date = Moment.moment(date).add(match[0], 'years').format('YYYY年MM月DD日H時m分'); 
     }
+    if(message.match(/\d+月/)){
+      match = message.match(/\d+月/); 
+      date = Moment.moment(date).add(match[0], 'months').format('YYYY年MM月DD日H時m分'); 
+    }
+    if(message.match(/\d+日/)){
+      match = message.match(/\d+日/); 
+      date = Moment.moment(date).add(match[0], 'days').format('YYYY年MM月DD日H時m分'); 
+    }
+    if(message.match(/\d+時/)){
+      match = message.match(/\d+時/); 
+      date = Moment.moment(date).add(match[0], 'hours').format('YYYY年MM月DD日H時m分'); 
+    }
+    if(message.match(/\d+分/)){
+      match = message.match(/\d+分/); 
+      date = Moment.moment(date).add(match[0], 'minutes').format('YYYY年MM月DD日H時m分'); 
+    }
+    // ------------------------------------------------------------------------------------
+  }else if(message.match(/\d[年月日時分]/)) {//　指定された日時を保存。
+    if(message.match(/\d+年/)){
+      match = message.match(/\d+年/); 
+      date = date.replace(/\d+年/, match+"年"); 
+    }
+    if(message.match(/\d+月/)){
+      match = message.match(/\d+月/); 
+      date = date.replace(/\d+月/, match+"月"); 
+    }
+    if(message.match(/\d+日/)){
+      match = message.match(/\d+日/); 
+      date = date.replace(/\d+日/, match+"日"); 
+    }
+    if(message.match(/\d+時/)){
+      match = message.match(/\d+時/); 
+      date = date.replace(/\d+時/, match+"時"); 
+    }
+    if(message.match(/\d+分/)){
+      match = message.match(/\d+分/); 
+      date = date.replace(/\d+分/, match+"分"); 
+    } 
   }
-  if (date === 'Invalid date') { //時間文字列として無効な場合には 
+  if(message.match("明日")){
+    date = Moment.moment(date).add(1, 'days').format('YYYY年MM月DD日H時m分'); 
+  }
+  if(message.match("明後日")){
+    date = Moment.moment(date).add(2, 'days').format('YYYY年MM月DD日H時m分'); 
+  }
+  if(message.match("明々後日")){
+    date = Moment.moment(date).add(3, 'days').format('YYYY年MM月DD日H時m分'); 
+  }
+  if(message.match("来週")){
+    date = Moment.moment(date).add(7, 'days').format('YYYY年MM月DD日H時m分'); 
+  }  
+  if(message.match("再来週")){
+    date = Moment.moment(date).add(14, 'days').format('YYYY年MM月DD日H時m分'); 
+  }  
+  
+  date = Moment.moment(date,'Y年M月D日H時m分').format('YYYY年MM月DD日H時m分');  
+  
+  if (date !== truedate) { //時間文字列として無効な場合には 
     return '「10分後」「11月23日17時00分」など\n「○分後」か、「○月○日○時○分」形式で知らせる時間を教えてね。そうしないと正しく時間を登録できないよ！'
   } else if (date < Moment.moment()) { //現在の時刻よりも前ならば
     return '過去の時間に知らせてもらいたいなんて少し深めの闇を感じるね...'
@@ -109,8 +195,8 @@ function cancel(row) { // キャンセルの場合に動く関数。
 }
 
 function remind(e) { //　リマインダーの為のトリガーとなっているもの。　呼び出し元のトリガーのUniqueIdを調べて、スプレッドシートの4列目からそのUniqueIdが記録されている行を探す。
-//探してきた行からUserIdとtodoを特定して、LINEでメッセージを送ります。
-//UniqueId...日時と、実行する関数を指定して作成されたトリガーの固有ID。
+  //探してきた行からUserIdとtodoを特定して、LINEでメッセージを送ります。
+  //UniqueId...日時と、実行する関数を指定して作成されたトリガーの固有ID。
   var userDataRow = searchRowNum(e.triggerUid, 3);  //トリガーの内容が何行目かを判断。
   var userId = getUserIdCell(userDataRow).getValue(); //UserIdセルの中身を取得代入。 
   var todo = getTodoCell(userDataRow).getValue(); //Todoセルの中身を取得代入。
@@ -118,12 +204,13 @@ function remind(e) { //　リマインダーの為のトリガーとなってい
   cancel(userDataRow); 
   return sendLineMessageFromUserId(userId, remindText); //反応してラインに値を送る関数に引数を与える。
 }
-function asita(row){
-        var date = Moment.moment().add(1,'days').format('YYYY年MM月DD日H時m分');
-        setTrigger(row, date); //トリガーとなるIDを作成。
-        setFromRowCol(date, row, 2); //その時間を書き込み。
-        return date + 'だね。覚えたよ！\nその時間になったら知らせるね。';
+/*function asita(row){
+var date = Moment.moment().add(1,'days').format('YYYY年MM月DD日H時m分');
+setTrigger(row, date); //トリガーとなるIDを作成。
+setFromRowCol(date, row, 2); //その時間を書き込み。
+return date + 'だね。覚えたよ！\nその時間になったら知らせるね。';
 }
+*/
 
 /*******
 スクリプト...書いてすぐ実行できるプログラム
@@ -131,7 +218,7 @@ function asita(row){
 
 参考にしたサイト
 https://note.mu/tatsuaki_w/n/nfed622429f4a
- プログラミング初心者でも無料で簡単にLINE BOTが作れるチュートリアル
+プログラミング初心者でも無料で簡単にLINE BOTが作れるチュートリアル
 https://note.mu/toshioakaneya/n/ndd1c6647d53d
 LINEで予定を登録→通知してくれるリマインダーアプリを作ろう 
 *******/
