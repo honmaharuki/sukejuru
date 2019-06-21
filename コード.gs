@@ -66,17 +66,13 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
     default: //何か登録したいものが送られてきた場合の登録の場合分け。
       if (todoDate) { //すでにリマインダーが登録がされている状態で新しい予定が入ってきた場合。 todoDateが空でない場合。
         replyText = '一つ登録されているよ！\nもし新しい予定を登録したい時には”キャンセル”って送ってね。';
-   //     i = count ; // forを止める。
-      } else if (todo && i == count - 2) { //すでにタスクが登録されている状態で何かが入力されたということは日時が登録されていないということで日時関係のsetDateにいく。
-        datayotei = setDate(userDataRow, message);
-        replyText = dateyotei + 'だね。覚えたよ！\nその時間になったら知らせるね。';
+      } else if (todo) { //すでにタスクが登録されている状態で何かが入力されたということは日時が登録されていないということで日時関係のsetDateにいく。
+        replyText = setDate(userDataRow, message);
       }
       else { //リマインダーもタスクも登録されていないのでsetTodoから予定を登録する。
         replyText = setTodo(userDataRow, message);
-   //     i = count ; // forを止める。
       }
   }
-  //  }
   return sendLineMessageFromReplyToken(replyToken, replyText); //反応してラインに値を送る関数に引数を与える。
 }
 function searchUserDataRow(userId) {　// userIdが登録されている検索。　何行目に入っていたかを返却。　ない場合にはfalseを返却。
@@ -214,8 +210,6 @@ return date + 'だね。覚えたよ！\nその時間になったら知らせる
 
 /*******
 スクリプト...書いてすぐ実行できるプログラム
-
-
 参考にしたサイト
 https://note.mu/tatsuaki_w/n/nfed622429f4a
 プログラミング初心者でも無料で簡単にLINE BOTが作れるチュートリアル
