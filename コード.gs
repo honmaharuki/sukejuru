@@ -162,7 +162,7 @@ function setDate(row, message) { //日時を書き込む為の関数。
   
   if (date === truedate || date === 'Invalid date') { //時間文字列として無効な場合には 
     return '「10分後」「11月23日17時00分」など\n「○分後」か、「○月○日○時○分」形式で知らせる時間を教えてね。そうしないと正しく時間を登録できないよ！'
-  } else if (date < truedate) { //現在の時刻よりも前ならば
+  } else if (Moment.moment(date) < Moment.moment(truedate)) { //現在の時刻よりも前ならば
     return '過去の時間に知らせてもらいたいなんて少し深めの闇を感じるね...'
   }
   setTrigger(row, date); //トリガーとなるIDを作成。
