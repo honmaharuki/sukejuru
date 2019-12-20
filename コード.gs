@@ -2,13 +2,14 @@ var moment = Moment.load(); //moment = Moment.js(時間関係のライブラリ)
 
 // row = 行
 // col = 列
+// API の呼び出しは減らせば減らすだけ処理が速くなる。
 
 function doPost(e) { //値を外部から受け取った時に反応する関数。
   var webhookData = JSON.parse(e.postData.contents).events[0];　//JSON データ形式 読み込んだJSON文字列を読み込み使う。
   //e.postData.contents >> POST bodyのcontent textを返す。　つまりテキストデータを抜き出す。　events[0] 配列で読み込んでいる？
   //書き方が少しC言語に似ている部分がある。
-  
-  
+  // JSON確認。
+  console.log(JSON.parse(e.postData.contents).events[0]);
   //topost,toget系はデータをユーザーに返す。
   
   
@@ -25,6 +26,7 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
   replyToken = webhookData.replyToken;//返信用のトークンを取得　トークン...場所を記す為の印のようなもの。
   userId = webhookData.source.userId;//どの相手に返信するか把握する為にIDを取得。
   var userDataRow = searchUserDataRow(userId);//何行目にuserIdが入っていたかを判断　代入。
+  
   var todo = getTodoCell(userDataRow).getValue();//TodoCellの中身を代入。　userDataRow = 何行目の内容か。  
   var todoDate = getDateCell(userDataRow).getValue(); //Dateセルの中身を代入。
   switch (message) {
@@ -46,6 +48,7 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
         replyText = '一つ登録されているよ！\nもし新しい予定を登録したい時には”キャンセル”って送ってね。';
       } else if (todo) { //すでにタスクが登録されている状態で何かが入力されたということは日時が登録されていないということで日時関係のsetDateにいく。
         replyText = setDate(userDataRow, message);
+        
       }
       else { //リマインダーもタスクも登録されていないのでsetTodoから予定を登録する。
         replyText = setTodo(userDataRow, message);
@@ -63,9 +66,6 @@ function searchUserDataRow(userId) {　// userIdが登録されている検索�
 function setTodo(row, message) { //タスクを登録。
   setFromRowCol(message, row, 1);
   return '「' + message + ' 」だね。覚えたよ\nいつ教えてほしい？\n例：「10分後」「11月23日17時00分」など\n「○分後」か、「○月○日○時○分」形式で教えてね。そうしないと正しく時間を登録できないよ！\n「キャンセル」って言ってくれればやめるよ。';
-}
-function test(){    // test用関数。
-setDate(4,"2ヶ月後");
 }
 
 function setDate(row, message) { //日時を書き込む為の関数。
@@ -162,7 +162,7 @@ function setDate(row, message) { //日時を書き込む為の関数。
   
   if (date === truedate || date === 'Invalid date') { //時間文字列として無効な場合には 
     return '「10分後」「11月23日17時00分」など\n「○分後」か、「○月○日○時○分」形式で知らせる時間を教えてね。そうしないと正しく時間を登録できないよ！'
-  } else if (date < truedate) { //現在の時刻よりも前ならば
+  } else if (Moment.moment(date) < Moment.moment(truedate)) { //現在の時刻よりも前ならば
     return '過去の時間に知らせてもらいたいなんて少し深めの闇を感じるね...'
   }
   setTrigger(row, date); //トリガーとなるIDを作成。
@@ -182,25 +182,26 @@ function cancel(row) { // キャンセルの場合に動く関数。
   triggerCell.clear(); //トリガーが保存されたセル。
   return 'キャンセルしたよ！'
 }
+function canceldata(row) { // キャンセルの場合に動く関数。
+  getTodoCelldata(row).clear(); //タスクセル .clear セルの値をクリア。
+  getDateCelldata(row).clear(); //日付セル。
+  triggerCell = getTriggerCell(row) //トリガーセルの値を代入。
+  var triggerId = triggerCell.getValue(); //値を代入。
+  if (triggerId) { //値が0以外の時実行　何かある時は実行。
+    deleteTrigger(triggerId); // トリガー削除。
+  }
+  triggerCell.clear(); //トリガーが保存されたセル。
+  return 'キャンセルしたよ！'
+}
+
 
 function remind(e) { //　リマインダーの為のトリガーとなっているもの。　呼び出し元のトリガーのUniqueIdを調べて、スプレッドシートの4列目からそのUniqueIdが記録されている行を探す。
   //探してきた行からUserIdとtodoを特定して、LINEでメッセージを送ります。
   //UniqueId...日時と、実行する関数を指定して作成されたトリガーの固有ID。
-  var userDataRow = searchRowNum(e.triggerUid, 3);  //トリガーの内容が何行目かを判断。
-  var userId = getUserIdCell(userDataRow).getValue(); //UserIdセルの中身を取得代入。 
-  var todo = getTodoCell(userDataRow).getValue(); //Todoセルの中身を取得代入。
+  var userDataRow = searchRowNumData(e.triggerUid, 3);  //トリガーの内容が何行目かを判断。
+  var userId = getUserIdCelldata(userDataRow).getValue(); //UserIdセルの中身を取得代入。 
+  var todo = getTodoCelldata(userDataRow).getValue(); //Todoセルの中身を取得代入。
   var remindText = todo + 'の時間だよ！';
   cancel(userDataRow); 
   return sendLineMessageFromUserId(userId, remindText); //反応してラインに値を送る関数に引数を与える。
 }
-
-/*******
-スクリプト...書いてすぐ実行できるプログラム
-
-
-参考にしたサイト
-https://note.mu/tatsuaki_w/n/nfed622429f4a
-プログラミング初心者でも無料で簡単にLINE BOTが作れるチュートリアル
-https://note.mu/toshioakaneya/n/ndd1c6647d53d
-LINEで予定を登録→通知してくれるリマインダーアプリを作ろう 
-*******/

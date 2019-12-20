@@ -5,7 +5,8 @@ function setTrigger(row, date) { //トリガーの作成と、トリガーのUni
   var triggerDay = moment(date,'YYYY年MM月DD日H時m分').toDate(); // moment(date,'YYYY年MM月DD日H時m分')　時間文字列を渡す。
   // .toDate dete型　日付用の型で情報を抜き出す。
   var trigger =  ScriptApp.newTrigger("remind").timeBased().at(triggerDay).create(); //時間になったら"remind"を起動。
-  setFromRowCol(trigger.getUniqueId(), row, 3); //トリガーとなっているラインのトリガーを書き込み。
+  setFromRowColData(trigger.getUniqueId(), row, 3); //トリガーとなっているラインのトリガーを書き込み。
+  datasheet.sort(3, false); // 日付順にソート。
 }
 function deleteTrigger(uniqueId) { //不要になったトリガーを削除する関数。
   var triggers = ScriptApp.getProjectTriggers();

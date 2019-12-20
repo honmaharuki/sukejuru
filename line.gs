@@ -1,7 +1,7 @@
 //LINEに関わる関数
 
 //LINEにアクセスする為のトークンを代入。　トークン...トークンとは場所を記す為の印のようなもの。
-var channel_access_token = "9xcpI3PUHbBPbw4yj6VRs/hu2p6vz2UU1k+hz3mNTd7viyYwPI2oWpOXKu9UmCPlX1nElqaLZVyMNxazywXxEh6H1u8o9/E8xrg7iWiQDJ53JN4aLjclGsGOGPNoffe8aCuY+2XDHUyDLblwgKRuuAdB04t89/1O/w1cDnyilFU=";
+var channel_access_token = "XhvCDRvIv58DGyuFq0pADwWH8cbiREYtY3uAwjAucjCwDtcRc6mNTymbdEueYIY8lniaJd9Gk6Fx6yRfLANNdlsIOm8sMXe5dxwODtK6WwDcsFuUGbEDv3EmNhOCdg2flvhQY7KrWgpQliop6ykWdwdB04t89/1O/w1cDnyilFU=";
 
 //時間
 var moment = Moment.load(); //Momentライブラリをつけるようにする。
