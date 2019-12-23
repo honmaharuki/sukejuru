@@ -20,6 +20,7 @@ function sendLineMessageFromReplyToken(token, replyText) {
       "text": replyText //送るテキストの情報。
     }]
   };
+
   var options = {
     "method": "POST", //POST で送る。
     "headers": headers, 
