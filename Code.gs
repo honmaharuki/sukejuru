@@ -5,8 +5,8 @@ var moment = Moment.load(); //moment = Moment.js(時間関係のライブラリ)
 // API の呼び出しは減らせば減らすだけ処理が速くなる。
 
 function doPost(e) { //値を外部から受け取った時に反応する関数。
-  var webhookData = JSON.parse(e.postData.contents).events[0];　//JSON データ形式 読み込んだJSON文字列を読み込み使う。
-  //e.postData.contents >> POST bodyのcontent textを返す。　つまりテキストデータを抜き出す。　events[0] 配列で読み込んでいる？
+  var webhookData = JSON.parse(e.postData.contents).events[0]; //JSON データ形式 読み込んだJSON文字列を読み込み使う。
+  //e.postData.contents >> POST bodyのcontent textを返す。 つまりテキストデータを抜き出す。 events[0] 配列で読み込んでいる？
   //書き方が少しC言語に似ている部分がある。
   // JSON確認。
   console.log(JSON.parse(e.postData.contents).events[0]);
@@ -14,25 +14,42 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
   
   
   var message, replyToken, replyText, userId; 
+  var writingFlag  = false;
   /**** 
   var無しでも使えるがグローバル変数にしたくない時にはきちんと宣言したほうがいい。グローバル変数になる。
-  変数宣言　
+  変数宣言
   message = text形式のメッセージを取得
   replyToken = トークン取得
   replyText = テキストを返す為。
   userId = どの相手に返信するか把握する為にIDを取得
+  writingFlag = 書き込み用のフラグ
   ***/
   message = webhookData.message.text;//text形式のメッセージを取得。
-  replyToken = webhookData.replyToken;//返信用のトークンを取得　トークン...場所を記す為の印のようなもの。
+  replyToken = webhookData.replyToken;//返信用のトークンを取得 トークン...場所を記す為の印のようなもの。
   userId = webhookData.source.userId;//どの相手に返信するか把握する為にIDを取得。
-  var userDataRow = searchUserDataRow(userId);//何行目にuserIdが入っていたかを判断　代入。
   
-  var todo = getTodoCell(userDataRow).getValue();//TodoCellの中身を代入。　userDataRow = 何行目の内容か。  
+  //IDを使い検索用データを整える
+  appendToPSheet(userId);
+  console.log(userId);
+  selectQuery(1);
+  // resultのシートが整った
+
+  // DATEが登録されているかどうかの確認
+  // もし同じときにはCONTENTを登録、違うときにはDATEを登録
+  if (searchContent() == searchDate()){
+    writingFlag = true;
+  }
+  
+
+  console.log(writingFlag);
+  
+  var todo = getTodoCell(userDataRow).getValue();//TodoCellの中身を代入。 userDataRow = 何行目の内容か。  
   var todoDate = getDateCell(userDataRow).getValue(); //Dateセルの中身を代入。
   switch (message) {
     case '使い方':
       replyText = 'あとで思い出したいことをラインしてくれれば、いつお知らせしてほしいか聞くよ\nまずは覚えて欲しいことを教えてね\nその後時間を聞くから「10分後」「11月11日11時11分」のように「○分後」か、「○月○日○時○分」形式で日時を教えてね！そうしないと正しく時間を登録できないよ！';
       break;
+      // キャンセル処理へ移行
     case 'キャンセル':
       replyText = cancel(userDataRow);
       break;  
@@ -44,7 +61,7 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
       }
       break;
     default: //何か登録したいものが送られてきた場合の登録の場合分け。
-      if (todoDate) { //すでにリマインダーが登録がされている状態で新しい予定が入ってきた場合。 todoDateが空でない場合。
+     /* if (todoDate) { //すでにリマインダーが登録がされている状態で新しい予定が入ってきた場合。 todoDateが空でない場合。
         replyText = '一つ登録されているよ！\nもし新しい予定を登録したい時には”キャンセル”って送ってね。';
       } else if (todo) { //すでにタスクが登録されている状態で何かが入力されたということは日時が登録されていないということで日時関係のsetDateにいく。
         replyText = setDate(userDataRow, message);
@@ -53,11 +70,18 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
       else { //リマインダーもタスクも登録されていないのでsetTodoから予定を登録する。
         replyText = setTodo(userDataRow, message);
       }
+      */
+     if(writingFlag){ // タスク登録
+      replyText = setTodo(userDataRow, message);
+     }else{ // 日時登録 ただし 名前の最後のところに記述
+      replyText = setDate(userDataRow, message);
+     }
+
   }
   return sendLineMessageFromReplyToken(replyToken, replyText); //反応してラインに値を送る関数に引数を与える。
 }
-function searchUserDataRow(userId) {　// userIdが登録されている検索。　何行目に入っていたかを返却。　ない場合にはfalseを返却。
-  userDataRow = searchRowNum(userId, 0); //sheet.gsに関数あり。
+function searchUserDataRow(userId) { // userIdが登録されている検索。 何行目に入っていたかを返却。 ない場合にはfalseを返却。
+  userDataRow = searchRowNum(userId, 1); //sheet.gsに関数あり。
   if (userDataRow === false) { //もし登録されていなければ
     appendToSheet(userId); //userIdをレコードの最後に追加。
   }
@@ -205,3 +229,4 @@ function remind(e) { //　リマインダーの為のトリガーとなってい
   cancel(userDataRow); 
   return sendLineMessageFromUserId(userId, remindText); //反応してラインに値を送る関数に引数を与える。
 }
+
