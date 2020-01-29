@@ -38,6 +38,7 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
 //  var insertionUserDataRow = insertSearchUseridRowNum() + 1;
   console.log("RC49:"+insertionUserDataRow);
 
+// test
 
   // DATEが登録されているかどうかの確認
   // もし同じときにはCONTENTを登録、違うときにはDATEを登録
