@@ -1,4 +1,5 @@
 //スプレットシートとのやり取りに使われる関数まとめ。
+
 // メモ化を行う関数
 function getMainSheet(){
   if(getMainSheet.memoSheet){return getMainSheet.memoSheet;}
@@ -240,7 +241,6 @@ function selectQuery(number){
   }
 
 }
-
 
 
 

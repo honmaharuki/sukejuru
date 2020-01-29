@@ -12,7 +12,7 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
   console.log(JSON.parse(e.postData.contents).events[0]);
   //topost,toget系はデータをユーザーに返す。
   
-  
+  var lock = LockService.getScriptLock();
   var message, replyToken, replyText, userId; 
   var writingFlag  = false;
   /**** 
@@ -29,6 +29,10 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
   replyToken = webhookData.replyToken;//返信用のトークンを取得 トークン...場所を記す為の印のようなもの。
   userId = webhookData.source.userId;//どの相手に返信するか把握する為にIDを取得。
   
+try{
+  //3秒間のロックを取得
+  lock.waitLock(3000);
+
   //IDを使い検索用データを整える
   var insertionUserDataRow = ToPSheet(userId);
   //console.log(userId);
@@ -37,10 +41,6 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
   // IDを返すので +1する
 //  var insertionUserDataRow = insertSearchUseridRowNum() + 1;
   console.log("RC49:"+insertionUserDataRow);
-
-// test
-// test
-//test
 
 
   // DATEが登録されているかどうかの確認
@@ -102,6 +102,12 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
      }
 
   }
+}catch(e){
+  replyText = "うまく登録できなかったよ、もう一度送ってね。"
+}finally{
+ //ロック解除
+ lock.releaseLock();
+}
   //console.log(replyText);
   //console.log(replyToken);
   return sendLineMessageFromReplyToken(replyToken, replyText); //反応してラインに値を送る関数に引数を与える。
