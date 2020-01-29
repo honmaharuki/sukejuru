@@ -39,6 +39,9 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
   console.log("RC49:"+insertionUserDataRow);
 
 // test
+// test
+//test
+
 
   // DATEが登録されているかどうかの確認
   // もし同じときにはCONTENTを登録、違うときにはDATEを登録
