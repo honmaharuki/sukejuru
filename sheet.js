@@ -34,6 +34,13 @@ function getIDResult(){
   getIDResult.memoSheet = getMainSheet().getSheetByName('IDResult');
   return getIDResult.memoSheet;
 }
+// CheckScheduleシートを指定する。
+function getCheckSchedule(){
+  if(getCheckSchedule.memoSheet){return getCheckSchedule.memoSheet;}
+
+  getCheckSchedule.memoSheet = getMainSheet().getSheetByName('CheckSchedule');
+  return getCheckSchedule.memoSheet;
+}
 ///--------------------------------------------------------------------------------------
 // dataの取得
 function getValuesWbhook(){
@@ -49,7 +56,10 @@ function getValuesResult(){
   ResultDat = getResult().getDataRange().getValues(); //二次元配列で値を取得。
   return ResultDat;
 }
-
+function getValuesCheckSchedule(){
+  CheckScheduleDat = getCheckSchedule().getDataRange().getValues(); //二次元配列で値を取得。
+  return CheckScheduleDat;
+}
 
 //-----------------------------------------------------------------------------------------------------
 ///--------------------------------------------------------------------------------------
@@ -108,6 +118,23 @@ var dat = getValuesWbhook();
     }
   }
   return false;
+}
+function searchCheckScheduleRowNum(searchVal, col) { //受け取ったシートのデータを二次元配列に取得。
+  //検索する値とcolを指定して、見つけた行の番号を返す。なければfalseを返す。
+  var dat = getValuesCheckSchedule();
+    for (var i = 0; i < dat.length; i++) { //.length 配列の要素の個数を返す。datに入っている値の分回る。
+      if (dat[i][col] === searchVal) { //渡されたuserIdと一致する値があれば何行目に入っていたのかその値を返す。
+        return i;
+      }
+    }
+    return false;
+  }
+function searchCheckUserDataRow(userId) {　// userIdが登録されている検索。　何行目に入っていたかを返却。　ない場合にはfalseを返却。
+  userDataRow = searchRowNum(userId, 0); //sheet.gsに関数あり。
+  if (userDataRow === false) { //もし登録されていなければ
+    // appendToSheet(userId); //userIdをレコードの最後に追加。
+  }
+  return userDataRow; //userIdが何行目かを返却。
 }
 // 日付を入れるべきrowを取得
 function insertSearchUseridRowNum() { //受け取ったシートのデータを二次元配列に取得。

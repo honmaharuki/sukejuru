@@ -46,7 +46,6 @@ try{
   // DATEが登録されているかどうかの確認
   // もし同じときにはCONTENTを登録、違うときにはDATEを登録
   if (searchContent() == searchDate()){
-    
     writingFlag = true;
   }
   
@@ -63,6 +62,42 @@ try{
   var todo = getTodoCell(userDataRow).getValue();//TodoCellの中身を代入。 userDataRow = 何行目の内容か。  
   var todoDate = getDateCell(userDataRow).getValue(); //Dateセルの中身を代入。
   */
+  
+
+  if(searchCheckUserDataRow(userId)){
+
+    switch(message){
+      // 予定全てを送る
+      case '1':
+      case '１':
+        replyText = getIDResult();
+        break;
+      // 予定全てを送る
+      case '2':
+      case '２':
+       break;
+      // 予定全てを送る
+      case '3':
+      case '３':
+        break;
+      // 予定全てを送る
+      case '4':
+      case '４':
+        break;
+      // 予定全てを送る
+      case '5':
+      case '５':
+        break;
+      // 
+      default:
+        replyText = "いつの予定を確認するか数字で送ってね。\n１．すべての予定を確認\n２．本日の予定を確認\n３．今週の予定を確認\n４．今月の予定を確認\n５．日付を選択して確認"                                         
+
+    }
+
+    lock.releaseLock();
+    return sendLineMessageFromReplyToken(replyToken, replyText); //反応してラインに値を送る関数に引数を与える。
+  }
+
  console.log(message);
   switch (message) {
     case '使い方':
@@ -73,12 +108,16 @@ try{
     case 'キャンセル':
       replyText = cancel(insertionUserDataRow);
       break;  
-    case '確認':
-      if (todoDate) {
-        replyText = '「' + todo + '」を' + todoDate + 'に知らせるよ！';
-      } else {
-        replyText = '何も登録されていないよ！';
-      }
+    case '予定確認':
+      // HWOにUserIDを追加
+      
+      replyText = "いつの予定を確認するか数字で送ってね。\n１．すべての予定を確認\n２．本日の予定を確認\n３．今週の予定を確認\n４．今月の予定を確認\n５．日付を選択して確認"
+
+      // if (todoDate) {
+      //   replyText = '「' + todo + '」を' + todoDate + 'に知らせるよ！';
+      // } else {
+      //   replyText = '何も登録されていないよ！';
+      // }
       break;
     default: //何か登録したいものが送られてきた場合の登録の場合分け。
      /* if (todoDate) { //すでにリマインダーが登録がされている状態で新しい予定が入ってきた場合。 todoDateが空でない場合。
@@ -277,11 +316,8 @@ function remind(e) { // リマインダトリガ。
   //探してきた行からUserIdとtodoを特定して、LINEでメッセージを送ります。
   var id = getIdCelldata(1).getValue(); //Idセルの中身を取得代入。 
   var userId = getUserIdCelldata(1).getValue(); //UserIdセルの中身を取得代入。 
-  console.log("RC278:"+userId);
   var todo = getTodoCelldata(1).getValue(); //Todoセルの中身を取得代入。
-  console.log("RC280:"+todo);
    var remindText = todo + 'の時間だよ！';
-  console.log("RC282:"+remindText);
   
   resultDelete(id+1); 
   sendLineMessageFromUserId(userId, remindText); //反応してラインに値を送る関数に引数を与える。
