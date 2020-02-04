@@ -259,27 +259,35 @@ function canceldata(row) { // キャンセルの場合に動く関数。
   return 'キャンセルしたよ！'
 }
 function resultDelete(row) { // resultの値を一番上から削除する。
-  var deleteCellWebhook = getDeleteCellWbhook(row);
-  deleteCellWebhook.deleteCells(SpreadsheetApp.Dimension.ROWS)
-  return 'キャンセルしたよ！'
+  var message = "キャンセルできなかったよ";
+   message = getDeleteCellWbhook(row);
+  
+  return message;
 }
 
 // 最新リマインド
 function remind(e) { // リマインダトリガ。
   // 2行目を確認情報があれば実行なければ取りやめ。
   // 空白true
+  console.log("RC274:"+getIsBlank(1));
   if(getIsBlank(1)){
     return;
   }
+  while(!getIsBlank(1)){
   //探してきた行からUserIdとtodoを特定して、LINEでメッセージを送ります。
   var id = getIdCelldata(1).getValue(); //Idセルの中身を取得代入。 
   var userId = getUserIdCelldata(1).getValue(); //UserIdセルの中身を取得代入。 
+  console.log("RC278:"+userId);
   var todo = getTodoCelldata(1).getValue(); //Todoセルの中身を取得代入。
-  var remindText = todo + 'の時間だよ！';
+  console.log("RC280:"+todo);
+   var remindText = todo + 'の時間だよ！';
+  console.log("RC282:"+remindText);
+  
   resultDelete(id+1); 
-  return sendLineMessageFromUserId(userId, remindText); //反応してラインに値を送る関数に引数を与える。
+  sendLineMessageFromUserId(userId, remindText); //反応してラインに値を送る関数に引数を与える。
+  }
+  return;
 }
-
 // かこの遺産
 function HeritageRemind(e) { // リマインダーの為のトリガーとなっているもの。 呼び出し元のトリガーのUniqueIdを調べて、スプレッドシートの4列目からそのUniqueIdが記録されている行を探す。
   //探してきた行からUserIdとtodoを特定して、LINEでメッセージを送ります。

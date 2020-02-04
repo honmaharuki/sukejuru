@@ -213,10 +213,8 @@ function updateNowSet(row){
 
 function getDeleteCellWbhook(row){
   var sheet = getWbhook();
-  var deleteCellWebhook;
-  deleteCellWebhook = sheet.getRange(row,1,1,7)
-
-  return deleteCellWebhook;
+  sheet.deleteRows(row,1)
+  return "キャンセルしたよ！";
 }
 
 
