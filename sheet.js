@@ -20,6 +20,13 @@ function getParam(){
   
   return getParam.memoSheet;
 }
+// resultシートを指定する。
+function getResult(){
+  if(getResult.memoSheet){return getResult.memoSheet;}
+  getResult.memoSheet = getMainSheet().getSheetByName('result');
+  
+  return getResult.memoSheet;
+}
 // IDResultシートを指定する。
 function getIDResult(){
   if(getIDResult.memoSheet){return getIDResult.memoSheet;}
@@ -38,6 +45,11 @@ function getValuesIDResult(){
   ReDat = getIDResult().getDataRange().getValues(); //二次元配列で値を取得。
   return ReDat;
 }
+function getValuesResult(){
+  ResultDat = getResult().getDataRange().getValues(); //二次元配列で値を取得。
+  return ResultDat;
+}
+
 
 //-----------------------------------------------------------------------------------------------------
 ///--------------------------------------------------------------------------------------
@@ -157,13 +169,17 @@ function getTodoCell(row) { //LINEから送られたタスクが保存された�
   var sheet = getWbhook();
   return sheet.getRange(row + 1, 2);
 }
-function getUserIdCelldata(row) {// UserId どのLINEから送られた情報か、端末を識別する為の情報のセルを取得
+function HeritageGetUserIdCelldata(row) {// UserId どのLINEから送られた情報か、端末を識別する為の情報のセルを取得
   var sheet = getWbhook();
   return sheet.getRange(row + 1, 1);
 }
-function getTodoCelldata(row) { //LINEから送られたタスクが保存されたセルを取得
-  var sheet = getWbhook();
+function getUserIdCelldata(row) {// UserId どのLINEから送られた情報か、端末を識別する為の情報のセルを取得 resultから取得
+  var sheet = getResult();
   return sheet.getRange(row + 1, 2);
+}
+function getTodoCelldata(row) { //LINEから送られたタスクが保存されたセルを取得
+  var sheet = getResult();
+  return sheet.getRange(row + 1, 5);
 }
 
 function getDateCell(row) {//日付の情報が保存されたセルを取得
@@ -195,6 +211,15 @@ function updateNowSet(row){
   sheet.getRange(row, 7).setValue(updateTimeNow());
 }
 
+function getDeleteCellWbhook(row){
+  var sheet = getWbhook();
+  var deleteCellWebhook;
+  deleteCellWebhook = sheet.getRange(row,1,1,7)
+
+  return deleteCellWebhook;
+}
+
+
 
 /****************       param       *****************/
 function setPsheetFromRowColData(val, row, col) {//row,colで場所指定、値 書き込み。
@@ -203,11 +228,23 @@ function setPsheetFromRowColData(val, row, col) {//row,colで場所指定、値 
   PSheet.getRange(row, col).setValue(val);
 }
 
+/****************      result       ****************/
+function getIdCelldata(row) {// Id resultから取得
+  var sheet = getResult();
+  return sheet.getRange(row + 1, 1);
+}
 
+function getIsBlank(row) {// 空白かどうか resultから取得
+  var sheet = getResult();
+  var val = sheet.getRange(row + 1, 5);
+  return val.isBlank();
+}
 
 /*
 -----------------------------------------------------------------------------------------------
 */
+
+
 
 
 function appendToReSheet(text) {

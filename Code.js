@@ -221,6 +221,7 @@ function setDate(row, message) { //日時を書き込む為の関数。
   } else if (Moment.moment(date,'YYYY年M月D日H時m分') < Moment.moment(truedate,'YYYY年M月D日H時m分')) { //現在の時刻よりも前ならば
     return '過去の時間に知らせてもらいたいなんて少し深めの闇を感じるね...'
   }
+  /// 一分後の場合には処理に手間がかかるので処理を受け付けない。
   var upDateDate;
   var upDateTime;
   upDateDate = Moment.moment(date,'YYYY年M月D日H時m分').format('YYYY-MM-DD'); 
@@ -257,9 +258,30 @@ function canceldata(row) { // キャンセルの場合に動く関数。
   triggerCell.clear(); //トリガーが保存されたセル。
   return 'キャンセルしたよ！'
 }
+function resultDelete(row) { // resultの値を一番上から削除する。
+  var deleteCellWebhook = getDeleteCellWbhook(row);
+  deleteCellWebhook.deleteCells(SpreadsheetApp.Dimension.ROWS)
+  return 'キャンセルしたよ！'
+}
 
+// 最新リマインド
+function remind(e) { // リマインダトリガ。
+  // 2行目を確認情報があれば実行なければ取りやめ。
+  // 空白true
+  if(getIsBlank(1)){
+    return;
+  }
+  //探してきた行からUserIdとtodoを特定して、LINEでメッセージを送ります。
+  var id = getIdCelldata(1).getValue(); //Idセルの中身を取得代入。 
+  var userId = getUserIdCelldata(1).getValue(); //UserIdセルの中身を取得代入。 
+  var todo = getTodoCelldata(1).getValue(); //Todoセルの中身を取得代入。
+  var remindText = todo + 'の時間だよ！';
+  resultDelete(id+1); 
+  return sendLineMessageFromUserId(userId, remindText); //反応してラインに値を送る関数に引数を与える。
+}
 
-function remind(e) { //　リマインダーの為のトリガーとなっているもの。　呼び出し元のトリガーのUniqueIdを調べて、スプレッドシートの4列目からそのUniqueIdが記録されている行を探す。
+// かこの遺産
+function HeritageRemind(e) { // リマインダーの為のトリガーとなっているもの。 呼び出し元のトリガーのUniqueIdを調べて、スプレッドシートの4列目からそのUniqueIdが記録されている行を探す。
   //探してきた行からUserIdとtodoを特定して、LINEでメッセージを送ります。
   //UniqueId...日時と、実行する関数を指定して作成されたトリガーの固有ID。
   var userDataRow = searchRowNumData(e.triggerUid, 3);  //トリガーの内容が何行目かを判断。
