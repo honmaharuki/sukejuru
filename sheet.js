@@ -98,6 +98,14 @@ function appendToSheetContent( userId, text ) {
   return '「' + text + ' 」だね。覚えたよ\nいつ教えてほしい？\n例：「10分後」「11月23日17時00分」など\n「○分後」か、「○月○日○時○分」形式で教えてね。そうしないと正しく時間を登録できないよ！\n「キャンセル」って言ってくれればやめるよ。';
 }
 
+function setAAAAAColData() {//row,colで場所指定、値 書き込み。
+  var sheet = getWbhook();
+
+  var  val = 1;
+
+  sheet.getRange(2, 5).setValue(val);
+}
+
 // レコードの最後に追加
 function appendToSheet(text) {
   var sheet = getWbhook();
@@ -129,10 +137,10 @@ function searchCheckScheduleRowNum(searchVal, col) { //受け取ったシート�
     }
     return false;
   }
-function searchCheckUserDataRow(userId) {　// userIdが登録されている検索。　何行目に入っていたかを返却。　ない場合にはfalseを返却。
+function searchCheckUserDataRow(userId) { // userIdが登録されている検索。 何行目に入っていたかを返却。 ない場合にはfalseを返却。
   userDataRow = searchRowNum(userId, 0); //sheet.gsに関数あり。
   if (userDataRow === false) { //もし登録されていなければ
-    // appendToSheet(userId); //userIdをレコードの最後に追加。
+    userDataRow = false;
   }
   return userDataRow; //userIdが何行目かを返却。
 }
@@ -147,9 +155,9 @@ function insertSearchUseridRowNum() { //受け取ったシートのデータを�
     if(ReDat.length == 1){
       return false;
     }else{
-      console.log("RS64:"+ReDat);
-      console.log("RS65:"+ReDat[1][0]);
-      return ReDat[1][0];
+      // console.log("RS64:"+ReDat);
+      // console.log("RS65:"+ReDat[1][0]);
+       return ReDat[1][0];
     }
     
   }
@@ -259,17 +267,20 @@ function getIdCelldata(row) {// Id resultから取得
   return sheet.getRange(row + 1, 1);
 }
 
-function getIsBlank(row) {// 空白かどうか resultから取得
-  var sheet = getResult();
-  var val = sheet.getRange(row + 1, 5);
-  return val.isBlank();
+
+/****************      CheckSchedule       ****************/
+
+
+function appendToCheckScheduleSheet(text) {
+  var sheet = getCheckSchedule();
+  sheet.appendRow([text]);//シートDataにレコードを追加。
+  
 }
+
 
 /*
 -----------------------------------------------------------------------------------------------
 */
-
-
 
 
 function appendToReSheet(text) {
@@ -282,9 +293,9 @@ function ToPSheet(text) {
   var PSheet = getParam();
 
   PSheet.getRange(1,1).setValue(text);//シートresultにレコードを追加。
-  console.log("RS222:"+text);
+  // console.log("RS222:"+text);
   var insertionUserDataRow = insertSearchUseridRowNum() + 1;
-  console.log("RS221:"+insertSearchUseridRowNum() + 1);
+  // console.log("RS221:"+insertSearchUseridRowNum() + 1);
   return insertionUserDataRow;
 }
 

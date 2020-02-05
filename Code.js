@@ -9,7 +9,7 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
   //e.postData.contents >> POST bodyのcontent textを返す。 つまりテキストデータを抜き出す。 events[0] 配列で読み込んでいる？
   //書き方が少しC言語に似ている部分がある。
   // JSON確認。
-  console.log(JSON.parse(e.postData.contents).events[0]);
+  // console.log(JSON.parse(e.postData.contents).events[0]);
   //topost,toget系はデータをユーザーに返す。
   
   var lock = LockService.getScriptLock();
@@ -40,7 +40,7 @@ try{
   // resultのシートが整った
   // IDを返すので +1する
 //  var insertionUserDataRow = insertSearchUseridRowNum() + 1;
-  console.log("RC49:"+insertionUserDataRow);
+  // console.log("RC49:"+insertionUserDataRow);
 
 
   // DATEが登録されているかどうかの確認
@@ -50,7 +50,7 @@ try{
   }
   
 
-  console.log("RC45:"+writingFlag);
+  // console.log("RC45:"+writingFlag);
   
   
   var updateRow;
@@ -98,7 +98,7 @@ try{
     return sendLineMessageFromReplyToken(replyToken, replyText); //反応してラインに値を送る関数に引数を与える。
   }
 
- console.log(message);
+//  console.log(message);
   switch (message) {
     case '使い方':
       replyText = 'あとで思い出したいことをラインしてくれれば、いつお知らせしてほしいか聞くよ\nまずは覚えて欲しいことを教えてね\nその後時間を聞くから「10分後」「11月11日11時11分」のように「○分後」か、「○月○日○時○分」形式で日時を教えてね！そうしないと正しく時間を登録できないよ！';
@@ -112,6 +112,7 @@ try{
       // HWOにUserIDを追加
       
       replyText = "いつの予定を確認するか数字で送ってね。\n１．すべての予定を確認\n２．本日の予定を確認\n３．今週の予定を確認\n４．今月の予定を確認\n５．日付を選択して確認"
+      appendToCheckScheduleSheet(userId); //userIdをレコードの最後に追加。
 
       // if (todoDate) {
       //   replyText = '「' + todo + '」を' + todoDate + 'に知らせるよ！';
@@ -306,9 +307,10 @@ function resultDelete(row) { // resultの値を一番上から削除する。
 
 // 最新リマインド
 function remind(e) { // リマインダトリガ。
+  
+  setAAAAAColData();
   // 2行目を確認情報があれば実行なければ取りやめ。
   // 空白true
-  console.log("RC274:"+getIsBlank(1));
   if(getIsBlank(1)){
     return;
   }
@@ -318,8 +320,7 @@ function remind(e) { // リマインダトリガ。
   var userId = getUserIdCelldata(1).getValue(); //UserIdセルの中身を取得代入。 
   var todo = getTodoCelldata(1).getValue(); //Todoセルの中身を取得代入。
    var remindText = todo + 'の時間だよ！';
-  
-  resultDelete(id+1); 
+  resultDelete(id+1);
   sendLineMessageFromUserId(userId, remindText); //反応してラインに値を送る関数に引数を与える。
   }
   return;
@@ -335,4 +336,13 @@ function HeritageRemind(e) { // リマインダーの為のトリガーとなっ
   cancel(userDataRow); 
   return sendLineMessageFromUserId(userId, remindText); //反応してラインに値を送る関数に引数を与える。
 }
+
+function getIsBlank(row) {// 空白かどうか resultから取得
+
+  var getsheet = SpreadsheetApp.openById("1Gyw_0oNk-sR5VtjxZVsZlEzgl62aDNpcE-DHqTN9a1U");
+  var sheet = getsheet.getSheetByName('result');
+  var val = sheet.getRange(row+1, 5);
+  return val.isBlank();
+}
+
 

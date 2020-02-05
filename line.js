@@ -20,15 +20,11 @@ function sendLineMessageFromReplyToken(token, replyText) {
       "text": replyText //送るテキストの情報。
     }]
   };
-  console.log(token);
   var options = {
     "method": "POST", //POST で送る。
     "headers": headers, 
     "payload": JSON.stringify(postData)
   };
-  console.log(replyText);
-  console.log(url);
-  console.log(options);
   return UrlFetchApp.fetch(url, options); //LINEに送信。
 }
 
