@@ -30,8 +30,8 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
   userId = webhookData.source.userId;//どの相手に返信するか把握する為にIDを取得。
   
 try{
-  //3秒間のロックを取得
-  lock.waitLock(3000);
+  //30秒間のロックを取得
+  lock.waitLock(30000);
 
   //IDを使い検索用データを整える
   var insertionUserDataRow = ToPSheet(userId);
@@ -63,14 +63,20 @@ try{
   var todoDate = getDateCell(userDataRow).getValue(); //Dateセルの中身を代入。
   */
   
-
+//  console.log("CR66:"+searchCheckUserDataRow(userId));
+//  console.log("CR67:"+userId);
+    
   if(searchCheckUserDataRow(userId)){
 
+    console.log("1");
     switch(message){
       // 予定全てを送る
       case '1':
       case '１':
-        replyText = getIDResult();
+        replyText = getValuesIDResult();
+        
+        replyText = replyText.join(',');
+        console.log(replyText);
         break;
       // 予定全てを送る
       case '2':
@@ -94,7 +100,7 @@ try{
 
     }
 
-    lock.releaseLock();
+    
     return sendLineMessageFromReplyToken(replyToken, replyText); //反応してラインに値を送る関数に引数を与える。
   }
 
@@ -342,6 +348,7 @@ function getIsBlank(row) {// 空白かどうか resultから取得
   var getsheet = SpreadsheetApp.openById("1Gyw_0oNk-sR5VtjxZVsZlEzgl62aDNpcE-DHqTN9a1U");
   var sheet = getsheet.getSheetByName('result');
   var val = sheet.getRange(row+1, 5);
+//console.log(sheet.getDataRange().getValues());
   return val.isBlank();
 }
 

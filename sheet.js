@@ -58,6 +58,8 @@ function getValuesResult(){
 }
 function getValuesCheckSchedule(){
   CheckScheduleDat = getCheckSchedule().getDataRange().getValues(); //二次元配列で値を取得。
+  console.log("SR61:"+CheckScheduleDat);
+
   return CheckScheduleDat;
 }
 
@@ -138,7 +140,9 @@ function searchCheckScheduleRowNum(searchVal, col) { //受け取ったシート�
     return false;
   }
 function searchCheckUserDataRow(userId) { // userIdが登録されている検索。 何行目に入っていたかを返却。 ない場合にはfalseを返却。
-  userDataRow = searchRowNum(userId, 0); //sheet.gsに関数あり。
+  userDataRow = searchCheckScheduleRowNum(userId, 0); //sheet.gsに関数あり。
+  console.log("SR144:"+userDataRow);
+
   if (userDataRow === false) { //もし登録されていなければ
     userDataRow = false;
   }
