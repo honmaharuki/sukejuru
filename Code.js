@@ -74,9 +74,31 @@ try{
       case '1':
       case '１':
         replyText = getValuesIDResult();
+        replyText.shift();
+        var replyTextInt = replyText.length;
+        if(replyTextInt == 0){
+
+          replyText = "予定がないよ"
+
+        }else{
+
+          var LineReplyText = "全ての予定を確認するよ\n";
+          console.log("CR89:"+replyText);
         
-        replyText = replyText.join(',');
-        console.log(replyText);
+         replyText.forEach(function(value){
+            console.log("CR90:"+value);
+           LineReplyText += Moment.moment(value[2]).format('YYYY年MM月DD日');
+           LineReplyText +=  Moment.moment(value[3]).format('H時m分');
+            LineReplyText += ":";
+           LineReplyText += value[4];
+           LineReplyText += "\n"; 
+          });
+        
+         replyText = LineReplyText;
+        
+        
+          console.log("CR92:"+replyText);
+        }
         break;
       // 予定全てを送る
       case '2':
