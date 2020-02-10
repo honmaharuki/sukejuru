@@ -58,8 +58,7 @@ function getValuesResult(){
 }
 function getValuesCheckSchedule(){
   CheckScheduleDat = getCheckSchedule().getDataRange().getValues(); //二次元配列で値を取得。
-  console.log("SR61:"+CheckScheduleDat);
-
+  
   return CheckScheduleDat;
 }
 
@@ -139,9 +138,9 @@ function searchCheckScheduleRowNum(searchVal, col) { //受け取ったシート�
     }
     return false;
   }
-function searchCheckUserDataRow(userId) { // userIdが登録されている検索。 何行目に入っていたかを返却。 ない場合にはfalseを返却。
-  userDataRow = searchCheckScheduleRowNum(userId, 0); //sheet.gsに関数あり。
-  console.log("SR144:"+userDataRow);
+function searchCheckUserDataRow(userId,Col) { // userIdが登録されている検索。 何行目に入っていたかを返却。 ない場合にはfalseを返却。
+  userDataRow = searchCheckScheduleRowNum(userId, Col); //sheet.gsに関数あり。
+  
 
   if (userDataRow === false) { //もし登録されていなければ
     userDataRow = false;
@@ -279,6 +278,18 @@ function appendToCheckScheduleSheet(text) {
   var sheet = getCheckSchedule();
   sheet.appendRow([text]);//シートDataにレコードを追加。
   
+}
+
+// 指定された場所に値を挿入
+function SelectToCheckScheduleSheet(val, row, col) {
+  var sheet = getCheckSchedule();
+    sheet.getRange(row, col).setValue(val);
+}
+
+/// 確認用の日付が入力されているか確認
+function ConfirmationDateConfirmation(Row){
+  var sheetValues = getValuesCheckSchedule();
+      return sheetValues[Row][2];
 }
 
 

@@ -66,7 +66,28 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
     //  console.log("CR66:"+searchCheckUserDataRow(userId));
     //  console.log("CR67:"+userId);
 
-    if (searchCheckUserDataRow(userId)) {
+    // Bセルに値が入っているか確認
+    var checkSelectRow;
+    checkSelectRow = searchCheckUserDataRow(userId, 0);
+    
+    if(searchCheckUserDataRow(userId, 1)){
+      replyText = "bsaaaaaaaaaaaaaaa";
+
+      // Bが入っている日付1が入っている
+      console.log(ConfirmationDateConfirmation(checkSelectRow));
+      if(ConfirmationDateConfirmation(checkSelectRow)){
+        replyText = "bbbbbbbbbbbb";
+  
+      }
+      //Bが入っている日付１が入っていない
+      else{
+
+      }
+
+      return sendLineMessageFromReplyToken(replyToken, replyText); //反応してラインに値を送る関数に引数を与える。
+    }
+
+    if (checkSelectRow) {
 
       replyText = getValuesIDResult();
       replyText.shift();
@@ -74,12 +95,12 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
       var replyTextInt = replyText.length;
       if(!(message.match(/[1-5１-５]/))){
         replyText = "いつの予定を確認するか数字で送ってね。\n１．すべての予定を確認\n２．本日の予定を確認\n３．今週の予定を確認\n４．今月の予定を確認\n５．日付を選択して確認"
-        console.log("1");
+        
       }
       else if (replyTextInt == 0) {
 
         replyText = "予定がないよ"
-        console.log("2");
+     
       } else {
         switch (message) {
           // 予定全てを送る
@@ -87,18 +108,13 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
           case '１':
             // replyText = getValuesIDResult();
             // replyText.shift();
-            var replyTextInt = replyText.length;
-            if (replyTextInt == 0) {
-
-              replyText = "予定がないよ"
-
-            } else {
+           
 
               var LineReplyText = "全ての予定を確認するよ\n";
-              console.log("CR89:" + replyText);
+              
 
               replyText.forEach(function (value) {
-                console.log("CR90:" + value);
+         
                 LineReplyText += Moment.moment(value[2]).format('YYYY年MM月DD日');
                 LineReplyText += Moment.moment(value[3]).format('H時m分');
                 LineReplyText += ":";
@@ -107,54 +123,97 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
               });
 
               replyText = LineReplyText;
-
-
-              console.log("CR92:" + replyText);
-            }
+            
             break;
           // 本日の予定を確認
           case '2':
           case '２':
+            var LineReplyText = "今日の予定を確認するよ\n";
+            var Ver;
+            var Ddate;
+            replyText.forEach(function (value) {
+       
+              Ver = Moment.moment(value[2]).format('YYYY年MM月DD日');
+              Ddate = Moment.moment().format('YYYY年MM月DD日');
 
-            var replyTextInt = replyText.length;
-            if (replyTextInt == 0) {
-
-              replyText = "予定がないよ"
-
-            } else {
-
-              var LineReplyText = "全ての予定を確認するよ\n";
-
-              replyText.forEach(function (value) {
-                LineReplyText += Moment.moment(value[2]).format('YYYY年MM月DD日');
-                LineReplyText += Moment.moment(value[3]).format('H時m分');
+              if( Ver == Ddate){
+                LineReplyText += Ver + Moment.moment(value[3]).format('H時m分');
                 LineReplyText += ":";
                 LineReplyText += value[4];
                 LineReplyText += "\n";
-              });
+              }
+              
+            });
 
-              replyText = LineReplyText;
-
-
-              console.log("CR92:" + replyText);
+            if(LineReplyText == "今日の予定を確認するよ\n"){
+              LineReplyText = "予定はないよ";
             }
+            replyText = LineReplyText;
+           
             break;
           // 今週の予定を確認
+          // 時間で比べる
           case '3':
           case '３':
+            var LineReplyText = "今週の予定を確認するよ\n";
+            var Ver;
+            var Ddate;
+            replyText.forEach(function (value) {
+       
+              Ver = Moment.moment(value[2]).format('YYYY年MM月DD日');
+              Ddate = Moment.moment().format('YYYY年MM月DD日');
+              Ddate = Moment.moment(Ddate, 'YYYY年MM月DD日').add(7, 'days').format('YYYY年MM月DD日');
+              if( Moment.moment(Ver, 'YYYY年MM月DD日') < Moment.moment(Ddate, 'YYYY年MM月DD日')){
+                LineReplyText += Ver + Moment.moment(value[3]).format('H時m分');
+                LineReplyText += ":";
+                LineReplyText += value[4];
+                LineReplyText += "\n";
+              }
+              
+            });
+
+            if(LineReplyText == "今週の予定を確認するよ\n"){
+              LineReplyText = "予定はないよ";
+            }
+            replyText = LineReplyText;
             break;
           // 今月の予定を確認
           case '4':
           case '４':
+            var LineReplyText = "今月の予定を確認するよ\n";
+            var Ver;
+            var Ddate;
+            replyText.forEach(function (value) {
+       
+              Ver = Moment.moment(value[2]).format('YYYY年MM月');
+
+              Ddate = Moment.moment().format('YYYY年MM月');
+              if( Ver == Ddate){
+                Ver = Moment.moment(value[2]).format('YYYY年MM月DD日');
+                LineReplyText += Ver + Moment.moment(value[3]).format('H時m分');
+                LineReplyText += ":";
+                LineReplyText += value[4];
+                LineReplyText += "\n";
+              }
+              
+            });
+            // 値が同じ時 何も値が入っていないため予定なし
+            if(LineReplyText == "今月の予定を確認するよ\n"){
+              LineReplyText = "予定はないよ";
+            }
+            replyText = LineReplyText;
             break;
           // 日付を選択して確認
           case '5':
           case '５':
+            replyText = "確認したい日付のはじまりを入力してね";
+            SelectToCheckScheduleSheet(userId, checkSelectRow + 1, 2);
+
             break;
           // 
 
         }
-        console.log("3");
+        
       }
 
 
