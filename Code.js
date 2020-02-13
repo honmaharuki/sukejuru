@@ -74,6 +74,7 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
       replyText = "bsaaaaaaaaaaaaaaa";
 
       // Bが入っている日付1が入っている 予定を送る 無駄なデータを削除
+      // 
       console.log(ConfirmationDateConfirmation(checkSelectRow));
       if(ConfirmationDateConfirmation(checkSelectRow)){
         replyText = "bbbbbbbbbbbb";
@@ -287,10 +288,12 @@ function setTodo(row, message) { //タスクを登録。
   return '「' + message + ' 」だね。覚えたよ\nいつ教えてほしい？\n例：「10分後」「11月23日17時00分」など\n「○分後」か、「○月○日○時○分」形式で教えてね。そうしないと正しく時間を登録できないよ！\n「キャンセル」って言ってくれればやめるよ。';
 }
 
-function setDate(row, message) { //日時を書き込む為の関数。
+
+
+
+function setVerificationDate(message) { //日時を書き込む為の関数。入力されたメッセージから日付を整えるDate
   // 全角英数を半角に変換
   var date = Moment.moment().format('YYYY年MM月DD日H時m分');//現在日時取得。 YYYY年MM月DD日H時m分
-  var truedate = date; // 正しい日付。
   // 全角英数を半角に変換
   message = message.replace(/[Ａ-Ｚａ-ｚ０-９]/g, function (s) { //新しい文字列を作る為の関数を指定。
     return String.fromCharCode(s.charCodeAt(0) - 0xFEE0); // 全角英数を半角に変換。
@@ -379,12 +382,25 @@ function setDate(row, message) { //日時を書き込む為の関数。
 
   date = Moment.moment(date, 'YYYY年M月D日H時m分').format('YYYY年MM月DD日H時m分');
 
+  return date;
+  
+}
+
+
+
+function setDate(row, message) { //日時を書き込む為の関数。
+  // 全角英数を半角に変換
+  var date = Moment.moment().format('YYYY年MM月DD日H時m分');//現在日時取得。 YYYY年MM月DD日H時m分
+  var truedate = date; // 正しい日付。
+  
+  date = setVerificationDate(message);
+
   if (date === truedate || date === 'Invalid date') { //時間文字列として無効な場合には 
     return '「10分後」「11月23日17時00分」など\n「○分後」か、「○月○日○時○分」形式で知らせる時間を教えてね。そうしないと正しく時間を登録できないよ！'
   } else if (Moment.moment(date, 'YYYY年M月D日H時m分') < Moment.moment(truedate, 'YYYY年M月D日H時m分')) { //現在の時刻よりも前ならば
     return '過去の時間に知らせてもらいたいなんて少し深めの闇を感じるね...'
   }
-  /// 一分後の場合には処理に手間がかかるので処理を受け付けない。
+  // 一分後の場合には処理に手間がかかるので処理を受け付けない。
   var upDateDate;
   var upDateTime;
   upDateDate = Moment.moment(date, 'YYYY年M月D日H時m分').format('YYYY-MM-DD');
