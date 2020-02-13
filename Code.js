@@ -73,13 +73,14 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
     if(searchCheckUserDataRow(userId, 1)){
       replyText = "bsaaaaaaaaaaaaaaa";
 
-      // Bが入っている日付1が入っている
+      // Bが入っている日付1が入っている 予定を送る 無駄なデータを削除
       console.log(ConfirmationDateConfirmation(checkSelectRow));
       if(ConfirmationDateConfirmation(checkSelectRow)){
         replyText = "bbbbbbbbbbbb";
+
   
       }
-      //Bが入っている日付１が入っていない
+      //Bが入っている日付１が入っていない 日付登録
       else{
 
       }
@@ -414,7 +415,7 @@ function canceldata(row) { // キャンセルの場合に動く関数。
   getDateCelldata(row).clear(); //日付セル。
   triggerCell = getTriggerCell(row) //トリガーセルの値を代入。
   var triggerId = triggerCell.getValue(); //値を代入。
-  if (triggerId) { //値が0以外の時実行　何かある時は実行。
+  if (triggerId) { //値が0以外の時実行 何かある時は実行。
     deleteTrigger(triggerId); // トリガー削除。
   }
   triggerCell.clear(); //トリガーが保存されたセル。
