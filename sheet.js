@@ -131,8 +131,10 @@ var dat = getValuesWbhook();
 function searchCheckScheduleRowNum(searchVal, col) { //受け取ったシートのデータを二次元配列に取得。
   //検索する値とcolを指定して、見つけた行の番号を返す。なければfalseを返す。
   var dat = getValuesCheckSchedule();
+  
     for (var i = 0; i < dat.length; i++) { //.length 配列の要素の個数を返す。datに入っている値の分回る。
       if (dat[i][col] === searchVal) { //渡されたuserIdと一致する値があれば何行目に入っていたのかその値を返す。
+        
         return i;
       }
     }
@@ -141,7 +143,6 @@ function searchCheckScheduleRowNum(searchVal, col) { //受け取ったシート�
 function searchCheckUserDataRow(userId,Col) { // userIdが登録されている検索。 何行目に入っていたかを返却。 ない場合にはfalseを返却。
   userDataRow = searchCheckScheduleRowNum(userId, Col); //sheet.gsに関数あり。
   
-
   if (userDataRow === false) { //もし登録されていなければ
     userDataRow = false;
   }
@@ -289,7 +290,12 @@ function SelectToCheckScheduleSheet(val, row, col) {
 /// 確認用の日付が入力されているか確認
 function ConfirmationDateConfirmation(Row){
   var sheetValues = getValuesCheckSchedule();
+  
       return sheetValues[Row][2];
+}
+function getDeleteCellCheckSchedule(row){
+  var sheet = getCheckSchedule();
+  sheet.deleteRows(row,1);
 }
 
 
