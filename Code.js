@@ -235,8 +235,8 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
         break;
       // キャンセル処理へ移行
       // 変更
-      case 'キャンセル':
-        replyText = cancel(insertionUserDataRow);
+      case '予定削除':
+        replyText = canceldata(insertionUserDataRow);
         break;
       case '予定確認':
         // HWOにUserIDを追加
@@ -282,6 +282,19 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
   //console.log(replyToken);
   return sendLineMessageFromReplyToken(replyToken, replyText); //反応してラインに値を送る関数に引数を与える。
 }
+
+function canceldata(row) { // キャンセルの場合に動く関数。
+  getTodoCelldata(row).clear(); //タスクセル .clear セルの値をクリア。
+  getDateCelldata(row).clear(); //日付セル。
+  triggerCell = getTriggerCell(row) //トリガーセルの値を代入。
+  var triggerId = triggerCell.getValue(); //値を代入。
+  if (triggerId) { //値が0以外の時実行 何かある時は実行。
+    deleteTrigger(triggerId); // トリガー削除。
+  }
+  triggerCell.clear(); //トリガーが保存されたセル。
+  return 'キャンセルしたよ！'
+}
+
 function searchUserDataRow(userId) { // userIdが登録されている検索。 何行目に入っていたかを返却。 ない場合にはfalseを返却。
   userDataRow = searchRowNum(userId, 1); //sheet.gsに関数あり。
   if (userDataRow === false) { //もし登録されていなければ
@@ -509,17 +522,7 @@ function cancel(row) { // キャンセルの場合に動く関数。 一番最�
   triggerCell.clear(); //トリガーが保存されたセル。
   return 'キャンセルしたよ！'
 }
-function canceldata(row) { // キャンセルの場合に動く関数。
-  getTodoCelldata(row).clear(); //タスクセル .clear セルの値をクリア。
-  getDateCelldata(row).clear(); //日付セル。
-  triggerCell = getTriggerCell(row) //トリガーセルの値を代入。
-  var triggerId = triggerCell.getValue(); //値を代入。
-  if (triggerId) { //値が0以外の時実行 何かある時は実行。
-    deleteTrigger(triggerId); // トリガー削除。
-  }
-  triggerCell.clear(); //トリガーが保存されたセル。
-  return 'キャンセルしたよ！'
-}
+
 function resultDelete(row) { // resultの値を一番上から削除する。
   var message = "キャンセルできなかったよ";
   message = getDeleteCellWbhook(row);
