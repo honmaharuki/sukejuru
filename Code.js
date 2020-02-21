@@ -68,25 +68,30 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
 
     // Bセルに値が入っているか確認
     var checkSelectRow;
-    
+
     checkSelectRow = searchCheckUserDataRow(userId, 0);
-   
+
     if (searchCheckUserDataRow(userId, 1)) {
       // Bが入っている日付1が入っている 予定を送る 無駄なデータを削除
       // 
-      
+
+
       if (ConfirmationDateConfirmation(checkSelectRow)) {
+
+        var deleteCheck = getSellCeeckSchedule(checkSelectRow, 3);
+
         var plansDate = ConfirmationDateConfirmation(checkSelectRow); // 日付入る もともと登録されている日付
-        replyText = ReturnDateVerification(plansDate, message,checkSelectRow);
-        
-        
+        replyText = ReturnDateVerification(plansDate, message, checkSelectRow, deleteCheck);
+
+
+
       }
       //Bが入っている日付１が入っていない 日付登録
       else {
-        replyText = setDateVerification(checkSelectRow+1,message);
-        
+        replyText = setDateVerification(checkSelectRow + 1, message);
+
       }
-    
+
       return sendLineMessageFromReplyToken(replyToken, replyText); //反応してラインに値を送る関数に引数を与える。
     }
 
@@ -94,134 +99,242 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
       replyText = getValuesIDResult();
       replyText.shift();
 
+      // 削除にチェックが付いているかの確認 1があったら削除項目
+      var deleteCheck = getSellCeeckSchedule(checkSelectRow, 3);
+
       var replyTextInt = replyText.length;
-      if (!(message.match(/[1-5１-５]/))) {
-        replyText = "いつの予定を確認するか数字で送ってね。\n１．すべての予定を確認\n２．本日の予定を確認\n３．今週の予定を確認\n４．今月の予定を確認\n５．日付を選択して確認"
 
-      }
-      else if (replyTextInt == 0) {
+      // 削除のとき
+      if (deleteCheck == 1) {
+        if (!(message.match(/[1-6１-６]/))) {
+          replyText = "なにをするか数字で送ってね。\n１．予定を表示\n２．最近追加した予定を削除\n３．全ての予定を削除\n４．今週の予定を削除\n５．日付から削除\n６．削除しない";
 
-        replyText = "予定がないよ"
+        }
+        else if (replyTextInt == 0) {
 
-      } else {
-        switch (message) {
-          // 予定全てを送る
-          case '1':
-          case '１':
-            // replyText = getValuesIDResult();
-            // replyText.shift();
+          replyText = "削除できる予定がないよ"
+
+        } else {
+          console.log("aaaaaa");
+          switch (message) {
+            // 予定全てを送る
+            case '1':
+            case '１':
+              // replyText = getValuesIDResult();
+              // replyText.shift();
 
 
-            var LineReplyText = "全ての予定を確認するよ\n";
+              var LineReplyText = "予定を表示するよ\n";
 
 
-            replyText.forEach(function (value) {
+              replyText.forEach(function (value) {
 
-              LineReplyText += Moment.moment(value[2]).format('YYYY年MM月DD日');
-              LineReplyText += Moment.moment(value[3]).format('H時m分');
-              LineReplyText += ":";
-              LineReplyText += value[4];
-              LineReplyText += "\n";
-            });
-
-            replyText = LineReplyText;
-            getDeleteCellCheckSchedule(checkSelectRow+1);
-
-            break;
-          // 本日の予定を確認
-          case '2':
-          case '２':
-            var LineReplyText = "今日の予定を確認するよ\n";
-            var Ver;
-            var Ddate;
-            replyText.forEach(function (value) {
-
-              Ver = Moment.moment(value[2]).format('YYYY年MM月DD日');
-              Ddate = Moment.moment().format('YYYY年MM月DD日');
-
-              if (Ver == Ddate) {
-                LineReplyText += Ver + Moment.moment(value[3]).format('H時m分');
+                LineReplyText += Moment.moment(value[2]).format('YYYY年MM月DD日');
+                LineReplyText += Moment.moment(value[3]).format('H時m分');
                 LineReplyText += ":";
                 LineReplyText += value[4];
                 LineReplyText += "\n";
-              }
+              });
 
-            });
+              replyText = LineReplyText;
 
-            if (LineReplyText == "今日の予定を確認するよ\n") {
-              LineReplyText = "予定はないよ";
-            }
-            replyText = LineReplyText;
-            getDeleteCellCheckSchedule(checkSelectRow+1);
 
-            break;
-          // 今週の予定を確認
-          // 時間で比べる
-          case '3':
-          case '３':
-            var LineReplyText = "今週の予定を確認するよ\n";
-            var Ver;
-            var Ddate;
-            replyText.forEach(function (value) {
+              break;
+            // 最新予定削除
+            case '2':
+            case '２':
+              var LineReplyText = "最近追加した予定を削除したよ\n";
+              var maxid = getMAXidtoIDResult();
+              console.log(maxid);
+              getDeleteCellCheckSchedule(checkSelectRow + 1);
+              getDeleteCellWbhook(maxid + 1);
+              replyText = LineReplyText;
 
-              Ver = Moment.moment(value[2]).format('YYYY年MM月DD日');
-              Ddate = Moment.moment().format('YYYY年MM月DD日');
-              Ddate = Moment.moment(Ddate, 'YYYY年MM月DD日').add(7, 'days').format('YYYY年MM月DD日');
-              if (Moment.moment(Ver, 'YYYY年MM月DD日') < Moment.moment(Ddate, 'YYYY年MM月DD日')) {
-                LineReplyText += Ver + Moment.moment(value[3]).format('H時m分');
-                LineReplyText += ":";
-                LineReplyText += value[4];
-                LineReplyText += "\n";
-              }
+              break;
+            // 全ての予定を削除
+            case '3':
+            case '３':
 
-            });
+              var LineReplyText = "全ての予定を削除したよ\n";
 
-            if (LineReplyText == "今週の予定を確認するよ\n") {
-              LineReplyText = "予定はないよ";
-            }
-            replyText = LineReplyText;
-            getDeleteCellCheckSchedule(checkSelectRow+1);
+              console.log(LineReplyText);
+              DeleteAll();
 
-            break;
-          // 今月の予定を確認
-          case '4':
-          case '４':
-            var LineReplyText = "今月の予定を確認するよ\n";
-            var Ver;
-            var Ddate;
-            replyText.forEach(function (value) {
+              replyText = LineReplyText;
+              getDeleteCellCheckSchedule(checkSelectRow + 1);
 
-              Ver = Moment.moment(value[2]).format('YYYY年MM月');
+              break;
+            // 今週の予定を確認
+            case '4':
+            case '４':
+              var LineReplyText = "今週の予定を削除したよ\n";
+              var Ver;
+              var Ddate;
+              // 行を確認、IDを取得 もしIFに引っかかったらそのIDの行を削除
+              replyText.forEach(function (value) {
 
-              Ddate = Moment.moment().format('YYYY年MM月');
-              if (Ver == Ddate) {
                 Ver = Moment.moment(value[2]).format('YYYY年MM月DD日');
-                LineReplyText += Ver + Moment.moment(value[3]).format('H時m分');
-                LineReplyText += ":";
-                LineReplyText += value[4];
-                LineReplyText += "\n";
-              }
+                Ddate = Moment.moment().format('YYYY年MM月DD日');
+                Ddate = Moment.moment(Ddate, 'YYYY年MM月DD日').add(7, 'days').format('YYYY年MM月DD日');
+                if (Moment.moment(Ver, 'YYYY年MM月DD日') < Moment.moment(Ddate, 'YYYY年MM月DD日')) {
 
-            });
-            // 値が同じ時 何も値が入っていないため予定なし
-            if (LineReplyText == "今月の予定を確認するよ\n") {
-              LineReplyText = "予定はないよ";
-            }
-            replyText = LineReplyText;
-            getDeleteCellCheckSchedule(checkSelectRow+1);
+                  resultDelete(value[0] + 1);
 
-            break;
-          // 日付を選択して確認
-          case '5':
-          case '５':
-            replyText = "確認したい日付のはじまりを入力してね";
-            SelectToCheckScheduleSheet(userId, checkSelectRow + 1, 2);
+                }
 
-            break;
-          // 
+              });
+
+              replyText = LineReplyText;
+              getDeleteCellCheckSchedule(checkSelectRow + 1);
+
+              break;
+            // 日付を選択して確認
+            case '5':
+            case '５':
+              replyText = "削除したい日付のはじまりを入力してね";
+              SelectToCheckScheduleSheet(userId, checkSelectRow + 1, 2);
+
+              break;
+            // 
+            case '6':
+            case '６':
+              replyText = "わかったよ...";
+              getDeleteCellCheckSchedule(checkSelectRow + 1);
+              break;
+
+          }
 
         }
 
+      } else { // 削除以外のとき
+        if (!(message.match(/[1-5１-５]/))) {
+          replyText = "いつの予定を確認するか数字で送ってね。\n１．すべての予定を確認\n２．本日の予定を確認\n３．今週の予定を確認\n４．今月の予定を確認\n５．日付を選択して確認"
+
+        }
+        else if (replyTextInt == 0) {
+
+          replyText = "予定がないよ"
+
+        } else {
+          switch (message) {
+            // 予定全てを送る
+            case '1':
+            case '１':
+              // replyText = getValuesIDResult();
+              // replyText.shift();
+
+
+              var LineReplyText = "全ての予定を確認するよ\n";
+
+
+              replyText.forEach(function (value) {
+
+                LineReplyText += Moment.moment(value[2]).format('YYYY年MM月DD日');
+                LineReplyText += Moment.moment(value[3]).format('H時m分');
+                LineReplyText += ":";
+                LineReplyText += value[4];
+                LineReplyText += "\n";
+              });
+
+              replyText = LineReplyText;
+              getDeleteCellCheckSchedule(checkSelectRow + 1);
+
+              break;
+            // 本日の予定を確認
+            case '2':
+            case '２':
+              var LineReplyText = "今日の予定を確認するよ\n";
+              var Ver;
+              var Ddate;
+              replyText.forEach(function (value) {
+
+                Ver = Moment.moment(value[2]).format('YYYY年MM月DD日');
+                Ddate = Moment.moment().format('YYYY年MM月DD日');
+
+                if (Ver == Ddate) {
+                  LineReplyText += Ver + Moment.moment(value[3]).format('H時m分');
+                  LineReplyText += ":";
+                  LineReplyText += value[4];
+                  LineReplyText += "\n";
+                }
+
+              });
+
+              if (LineReplyText == "今日の予定を確認するよ\n") {
+                LineReplyText = "予定はないよ";
+              }
+              replyText = LineReplyText;
+              getDeleteCellCheckSchedule(checkSelectRow + 1);
+
+              break;
+            // 今週の予定を確認
+            // 時間で比べる
+            case '3':
+            case '３':
+              var LineReplyText = "今週の予定を確認するよ\n";
+              var Ver;
+              var Ddate;
+              replyText.forEach(function (value) {
+
+                Ver = Moment.moment(value[2]).format('YYYY年MM月DD日');
+                Ddate = Moment.moment().format('YYYY年MM月DD日');
+                Ddate = Moment.moment(Ddate, 'YYYY年MM月DD日').add(7, 'days').format('YYYY年MM月DD日');
+                if (Moment.moment(Ver, 'YYYY年MM月DD日') < Moment.moment(Ddate, 'YYYY年MM月DD日')) {
+                  LineReplyText += Ver + Moment.moment(value[3]).format('H時m分');
+                  LineReplyText += ":";
+                  LineReplyText += value[4];
+                  LineReplyText += "\n";
+                }
+
+              });
+
+              if (LineReplyText == "今週の予定を確認するよ\n") {
+                LineReplyText = "予定はないよ";
+              }
+              replyText = LineReplyText;
+              getDeleteCellCheckSchedule(checkSelectRow + 1);
+
+              break;
+            // 今月の予定を確認
+            case '4':
+            case '４':
+              var LineReplyText = "今月の予定を確認するよ\n";
+              var Ver;
+              var Ddate;
+              replyText.forEach(function (value) {
+
+                Ver = Moment.moment(value[2]).format('YYYY年MM月');
+
+                Ddate = Moment.moment().format('YYYY年MM月');
+                if (Ver == Ddate) {
+                  Ver = Moment.moment(value[2]).format('YYYY年MM月DD日');
+                  LineReplyText += Ver + Moment.moment(value[3]).format('H時m分');
+                  LineReplyText += ":";
+                  LineReplyText += value[4];
+                  LineReplyText += "\n";
+                }
+
+              });
+              // 値が同じ時 何も値が入っていないため予定なし
+              if (LineReplyText == "今月の予定を確認するよ\n") {
+                LineReplyText = "予定はないよ";
+              }
+              replyText = LineReplyText;
+              getDeleteCellCheckSchedule(checkSelectRow + 1);
+
+              break;
+            // 日付を選択して確認
+            case '5':
+            case '５':
+              replyText = "確認したい日付のはじまりを入力してね";
+              SelectToCheckScheduleSheet(userId, checkSelectRow + 1, 2);
+
+              break;
+            // 
+
+          }
+
+        }
       }
 
 
@@ -236,7 +349,10 @@ function doPost(e) { //値を外部から受け取った時に反応する関数
       // キャンセル処理へ移行
       // 変更
       case '予定削除':
-        replyText = canceldata(insertionUserDataRow);
+        replyText = "なにをするか数字で送ってね。\n１．予定を確認\n２．最近追加した予定を削除\n３．全ての予定を削除\n４．IDを選択して削除\n５．日付から削除\n６．削除しない";
+        appendToDeleteCheckScheduleSheet(userId); //userIdをレコードの最後に追加。  
+        //      replyText = canceldata(insertionUserDataRow);
+
         break;
       case '予定確認':
         // HWOにUserIDを追加
@@ -404,7 +520,7 @@ function VerificationDate(message) { //日時を書き込む為の関数。入�
   var Ddate = date;
   date = Moment.moment(date, 'YYYY年M月D日H時m分').format('YYYY年MM月DD日H時m分');
 
-  if(Ndate === Ddate){
+  if (Ndate === Ddate) {
     date = message;
   }
 
@@ -449,15 +565,15 @@ function setDateVerification(row, message) { //日時を書き込む為の関数
   // formatで直さなければ上位層が使われるので注意
   d = Moment.moment(DZdate, 'YYYY年M月D日H時m分').format('YYYY年MM月DD日H時m分');
 
-  
+
   if (d === 'Invalid date') { //時間文字列として無効な場合には 
     return '「10分後」「11月23日17時00分」など\n「○分後」か、「○月○日○時○分」形式で知らせる時間を教えてね。そうしないと正しく時間を登録できないよ！'
   }
   SelectToCheckScheduleSheet(DZdate, row, 3);
-  return DZdate + 'だね。覚えたよ！'
+  return DZdate + 'だね。覚えたよ！\n終わりの日付を入力してね。'
 }
 
-function ReturnDateVerification(date, message,row) { //日時を書き込む為の関数。 
+function ReturnDateVerification(date, message, row, deleteFlg) { //日時を書き込む為の関数。 
   // 全角英数を半角に変換
   var d = Moment.moment().format('YYYY年MM月DD日H時m分');//現在日時取得。 YYYY年MM月DD日H時m分
 
@@ -475,32 +591,57 @@ function ReturnDateVerification(date, message,row) { //日時を書き込む為�
       d = exchange;
 
     }
-    var LineReplyText = date + "から" + d + "の予定を確認するよ\n";
-    var Ver;
+
     var replyText = getValuesIDResult();
-    replyText.forEach(function (value) {
+    var Ver;
 
-      Ver = Moment.moment(value[2]).format('YYYY年MM月DD日H時m分');
-
-      if (Moment.moment(Ver, 'YYYY年M月D日H時m分') >= Moment.moment(date, 'YYYY年M月D日H時m分') && Moment.moment(Ver, 'YYYY年M月D日H時m分') <= Moment.moment(d, 'YYYY年M月D日H時m分')) {
-        Ver = Moment.moment(value[2]).format('YYYY年MM月DD日');
-        LineReplyText += Ver + Moment.moment(value[3]).format('H時m分');
-        LineReplyText += ":";
-        LineReplyText += value[4];
-        LineReplyText += "\n";
-      }
-
-    });
-    // 値が同じ時 何も値が入っていないため予定なし
-    if (LineReplyText == date + "から" + d + "の予定を確認するよ\n") {
-      LineReplyText = "予定はないよ";
-    }else{
-      // 予定削除
-      getDeleteCellCheckSchedule(row+1);
+    if (deleteFlg == 1) {
+      var LineReplyText = date + "から" + d + "の予定を削除したよ\n";
       
+      
+      replyText.forEach(function (value) {
+
+        Ver = Moment.moment(value[2]).format('YYYY年MM月DD日H時m分');
+
+        if (Moment.moment(Ver, 'YYYY年M月D日H時m分') >= Moment.moment(date, 'YYYY年M月D日H時m分') && Moment.moment(Ver, 'YYYY年M月D日H時m分') <= Moment.moment(d, 'YYYY年M月D日H時m分')) {
+          
+          resultDelete(value[0] + 1);
+
+        }
+
+      });
+
+      getDeleteCellCheckSchedule(row + 1);
+
+    } else {
+      var LineReplyText = date + "から" + d + "の予定を確認するよ\n";
+      
+      
+      replyText.forEach(function (value) {
+
+        Ver = Moment.moment(value[2]).format('YYYY年MM月DD日H時m分');
+
+        if (Moment.moment(Ver, 'YYYY年M月D日H時m分') >= Moment.moment(date, 'YYYY年M月D日H時m分') && Moment.moment(Ver, 'YYYY年M月D日H時m分') <= Moment.moment(d, 'YYYY年M月D日H時m分')) {
+          Ver = Moment.moment(value[2]).format('YYYY年MM月DD日');
+          LineReplyText += Ver + Moment.moment(value[3]).format('H時m分');
+          LineReplyText += ":";
+          LineReplyText += value[4];
+          LineReplyText += "\n";
+        }
+
+      });
+      // 値が同じ時 何も値が入っていないため予定なし
+      if (LineReplyText == date + "から" + d + "の予定を確認するよ\n") {
+        LineReplyText = "予定はないよ";
+      } else {
+        // 予定削除
+        getDeleteCellCheckSchedule(row + 1);
+
+      }
     }
 
-    
+
+
 
   }
 
@@ -525,6 +666,7 @@ function cancel(row) { // キャンセルの場合に動く関数。 一番最�
 
 function resultDelete(row) { // resultの値を一番上から削除する。
   var message = "キャンセルできなかったよ";
+  console.log("SSSS:" + row);
   message = getDeleteCellWbhook(row);
 
   return message;
@@ -552,6 +694,27 @@ function remind(e) { // リマインダトリガ。
   }
   return;
 }
+
+function DeleteAll() { // 全て削除
+
+  console.log(21)
+  setAAAAAColData();
+  // 2行目を確認情報があれば実行なければ取りやめ。
+  // 空白true
+  if (getIsBlankIDResult(1)) {
+    console.log(22);
+    return;
+  }
+  while (!getIsBlankIDResult(1)) {
+    console.log(getIsBlankIDResult(1));
+    var id = getIdResultIDCelldata(1).getValue(); //Idセルの中身を取得代入。 
+    console.log(23);
+    console.log(id);
+    resultDelete(id + 1);
+  }
+  return;
+}
+
 // かこの遺産
 function HeritageRemind(e) { // リマインダーの為のトリガーとなっているもの。 呼び出し元のトリガーのUniqueIdを調べて、スプレッドシートの4列目からそのUniqueIdが記録されている行を探す。
   //探してきた行からUserIdとtodoを特定して、LINEでメッセージを送ります。
@@ -573,4 +736,13 @@ function getIsBlank(row) {// 空白かどうか resultから取得
   return val.isBlank();
 }
 
+
+function getIsBlankIDResult(row) {// 空白かどうか IDReslultから取得
+
+  var getsheet = SpreadsheetApp.openById("1Gyw_0oNk-sR5VtjxZVsZlEzgl62aDNpcE-DHqTN9a1U");
+  var sheet = getsheet.getSheetByName('IDResult');
+  var val = sheet.getRange(row + 1, 6);
+  //console.log(sheet.getDataRange().getValues());
+  return val.isBlank();
+}
 

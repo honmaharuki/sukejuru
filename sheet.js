@@ -77,6 +77,30 @@ function searchContent() { //内容があるか確認 最終行のrowを出す
     return ReDat.length;
 }
 
+function getIdResultIDCelldata(row) {// Id IDResultから取得
+  var sheet = getIDResult();
+  return sheet.getRange(row + 1, 1);
+}
+
+// 最大IDの取得
+function getMAXidtoIDResult(){
+  console.log("1");
+  var dat = getValuesIDResult();
+  dat.shift();
+
+  var MAXID = 0;
+  dat.forEach(function (value) {
+
+    if (MAXID < value[0]){
+      MAXID = value[0];
+    }
+    
+
+  });
+
+  return MAXID;
+}
+
 function searchDate() { //日付があるか確認 日付の最終行のrowを出す
   var ReDat = getValuesIDResult();
 
@@ -252,6 +276,7 @@ function updateNowSet(row){
 
 function getDeleteCellWbhook(row){
   var sheet = getWbhook();
+  console.log("AA:"+row);
   sheet.deleteRows(row,1)
   return "キャンセルしたよ！";
 }
@@ -280,6 +305,11 @@ function appendToCheckScheduleSheet(text) {
   sheet.appendRow([text]);//シートDataにレコードを追加。
   
 }
+function appendToDeleteCheckScheduleSheet(text) { // シートの最後にIDと削除を追加
+  var sheet = getCheckSchedule();
+  sheet.appendRow([text,"","",1]);//シートDataにレコードを追加。
+  
+}
 
 // 指定された場所に値を挿入
 function SelectToCheckScheduleSheet(val, row, col) {
@@ -293,9 +323,17 @@ function ConfirmationDateConfirmation(Row){
   
       return sheetValues[Row][2];
 }
+// 行の削除
 function getDeleteCellCheckSchedule(row){
   var sheet = getCheckSchedule();
   sheet.deleteRows(row,1);
+}
+
+// セルの取得
+function getSellCeeckSchedule(row,col){
+  var dat = getValuesCheckSchedule();
+  return dat[row][col]; //行、列の指定された値を返す。
+  
 }
 
 
