@@ -29,6 +29,7 @@ function sendLineMessageFromReplyToken(token, replyText) {
 }
 
 
+
 //指定されたUserldにアプリ側から自発的にメッセージを送る関数。　リマインダー機能には必須。
 function sendLineMessageFromUserId(userId, text) { //誰に何を送るのかを引数として取得。
   var url = "https://api.line.me/v2/bot/message/push"; //送る為のurl。
